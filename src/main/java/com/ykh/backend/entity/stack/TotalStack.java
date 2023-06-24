@@ -19,5 +19,5 @@ public class TotalStack {
     private String title;
 
     @Column(name = "img_url")
-    private String url;
+    private String img_url;
 }
