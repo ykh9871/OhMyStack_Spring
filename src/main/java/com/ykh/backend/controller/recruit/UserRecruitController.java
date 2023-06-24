@@ -10,7 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -21,15 +23,24 @@ public class UserRecruitController {
 
     // 사용자가 선택한 채용공고 업데이트
     @PostMapping("/recruit")
-    public ResponseEntity<Void> updateUserRecruits(@RequestBody List<Long> recruitIds, Authentication authentication) {
+    public ResponseEntity<Void> addUserRecruits(@RequestBody List<Long> recruitIdsToAdd, Authentication authentication) {
         User user = userService.getUserFromAuthentication(authentication);
-        user.setUserRecruits(recruitIds);
+        List<Long> userRecruits = user.getUserRecruits();
+
+        // Set으로 변경하여 중복 제거
+        Set<Long> recruitIdsToAddSet = new HashSet<>(recruitIdsToAdd);
+
+        // 이미 존재하는 ID 제거
+        userRecruits.forEach(recruitIdsToAddSet::remove);
+
+        // 추가
+        userRecruits.addAll(recruitIdsToAddSet);
+
         user.setUpdatedAt(LocalDateTime.now());
         userService.updateUser(user);
 
         return ResponseEntity.ok().build();
     }
-
     // 사용자가 선택한 채용공고 조회
     @GetMapping("/recruit")
     public List<RecruitDto> getUserRecruits(Authentication authentication) {
