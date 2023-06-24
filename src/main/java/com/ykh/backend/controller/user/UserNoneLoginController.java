@@ -55,12 +55,15 @@ public class UserNoneLoginController {
     }
     // 이메일 찾기
     @GetMapping("/find-Email")
-    public ResponseEntity<String> findEmailByPhoneNumber(@RequestBody Requests.PhoneNumberRequest request) {
-        String email = userService.findEmailByPhoneNumber(request.phoneNumber);
+    public ResponseEntity<String> findEmailByPhoneNumber(@RequestParam String phoneNumber) {
+        String email = userService.findEmailByPhoneNumber(phoneNumber);
         if (email != null) {
             return ResponseEntity.ok(email);
-        } else return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
     // 비밀번호 찾기
     @PostMapping("/find-password")
     public ResponseEntity<?> sendPasswordResetEmail(@RequestBody Requests.FindPasswordRequest request) {
