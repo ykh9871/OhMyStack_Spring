@@ -2,11 +2,11 @@ package com.ykh.backend.service.user;
 
 import com.ykh.backend.dto.user.UserDto;
 import com.ykh.backend.dto.user.UserInfoDto;
+import com.ykh.backend.entity.user.AcademicAbility;
 import com.ykh.backend.entity.user.Authority;
+import com.ykh.backend.entity.user.Department;
 import com.ykh.backend.entity.user.User;
-import com.ykh.backend.repository.user.EmailService;
-import com.ykh.backend.repository.user.UserRepository;
-import com.ykh.backend.repository.user.UserService;
+import com.ykh.backend.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +28,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AcademicAbilityRepository academicAbilityRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Override
     public User getUserFromAuthentication(Authentication authentication) {
@@ -55,6 +57,10 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException("이미 사용 중인 이메일입니다.");
             }
         }
+        AcademicAbility academicAbility = academicAbilityRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("AcademicAbility with id 1 not found"));
+        Department department = departmentRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Department with id 1 not found"));
 
         User newUser = User.builder()
                 .email(accountDto.getEmail())
@@ -63,6 +69,8 @@ public class UserServiceImpl implements UserService {
                 .nickName(accountDto.getNickName())
                 .authority(Authority.ROLE_USER)
                 .createdAt(LocalDateTime.now())
+                .academicAbility(academicAbility)
+                .department(department)
                 .build();
 
         userRepository.save(newUser);
