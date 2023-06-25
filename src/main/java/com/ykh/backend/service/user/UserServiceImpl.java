@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -131,7 +132,7 @@ public class UserServiceImpl implements UserService {
     public void sendEmailVerificationCode(String email) throws Exception {
         String code = generateVerificationCode();
 
-        // Create or update the email verification code
+        // 전자 메일 확인 코드 만들기 또는 업데이트
         EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.findByEmail(email);
         if (emailVerificationCode == null) {
             emailVerificationCode = new EmailVerificationCode();
@@ -145,14 +146,20 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(email, subject, message);
     }
 
+    public enum EmailVerificationStatus {
+        VERIFIED, INVALID_CODE, EMAIL_NOT_FOUND
+    }
     @Override
-    public boolean verifyEmail(String email, String code) {
+    @Transactional
+    public EmailVerificationStatus verifyEmail(String email, String code) {
         EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.findByEmail(email);
-        if (emailVerificationCode != null && emailVerificationCode.getVerificationCode().equals(code)) {
+        if (emailVerificationCode == null) {
+            return EmailVerificationStatus.EMAIL_NOT_FOUND;
+        } else if (emailVerificationCode.getVerificationCode().equals(code)) {
             emailVerificationCodeRepository.deleteByEmail(email);
-            return true;
+            return EmailVerificationStatus.VERIFIED;
         } else {
-            return false;
+            return EmailVerificationStatus.INVALID_CODE;
         }
     }
 

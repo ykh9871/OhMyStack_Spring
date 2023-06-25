@@ -3,6 +3,7 @@ package com.ykh.backend.repository.user;
 import com.ykh.backend.dto.user.UserDto;
 import com.ykh.backend.dto.user.UserInfoDto;
 import com.ykh.backend.entity.user.User;
+import com.ykh.backend.service.user.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +20,7 @@ public interface UserService extends UserDetailsService {
     Optional<User> changePassword(User user, String password);
     Optional<User> findUserByEmail(String email);
     void sendEmailVerificationCode(String email) throws Exception; // Exception 키워드 추가
-    boolean verifyEmail(String email, String code);
+    UserServiceImpl.EmailVerificationStatus verifyEmail(String email, String code);
     String findEmailByPhoneNumber(String phoneNumber);
     void createPasswordResetTokenForUser(User user, String token);
     Optional<User> findUserByPasswordResetToken(String token);

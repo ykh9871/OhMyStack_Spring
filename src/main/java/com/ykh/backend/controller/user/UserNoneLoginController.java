@@ -4,6 +4,7 @@ import com.ykh.backend.dto.user.UserDto;
 import com.ykh.backend.entity.user.User;
 import com.ykh.backend.repository.user.UserService;
 import com.ykh.backend.request.Requests;
+import com.ykh.backend.service.user.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +44,12 @@ public class UserNoneLoginController {
     // 이메일 인증 확인
     @PostMapping("/verify-email-code")
     public ResponseEntity<?> verifyEmail(@RequestBody Requests.VerifyEmailRequest request) {
-        boolean isVerified = userService.verifyEmail(request.email, request.code);
-        if (isVerified) {
-            return ResponseEntity.ok().build();
-        } else {
-            // 코드가 없거나 일치하지 않다면
-            return ResponseEntity.badRequest().build();
-        }
+        UserServiceImpl.EmailVerificationStatus status = userService.verifyEmail(request.email, request.code);
+        return switch (status) {
+            case VERIFIED -> ResponseEntity.ok().build();
+            case INVALID_CODE -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid code.");
+            default -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found.");
+        };
     }
 
     // 이메일 찾기
