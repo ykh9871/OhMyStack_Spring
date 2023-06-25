@@ -15,10 +15,6 @@ public class Requests {
         public String newPassword;
     }
 
-    public static class PhoneNumberRequest {
-        public String phoneNumber;
-    }
-
     public static class VerifyEmailRequest {
 
         public String email;
