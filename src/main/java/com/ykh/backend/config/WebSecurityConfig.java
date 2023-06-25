@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @Component
-@CrossOrigin(origins = "https://api.ohmystack.co/")
+@CrossOrigin(origins = "https://api.ohmystack.co")
 @EnableGlobalMethodSecurity(prePostEnabled = true) // 메소드 단위로 보안 설정을 활성화하려면 이 애노테이션을 추가합니다.
 public class WebSecurityConfig {
 
