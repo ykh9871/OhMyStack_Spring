@@ -32,27 +32,26 @@ public class UserNoneLoginController {
     @PostMapping("/verify-email")
     public ResponseEntity<?> sendEmailVerificationCode(@RequestBody Map<String, String> emailMap) {
         String email = emailMap.get("email");
-        Optional<User> user = userService.findUserByEmail(email);
-        if (user.isPresent()) {
-            try {
-                userService.sendEmailVerificationCode(user.get());
-                return ResponseEntity.ok().build();
-            } catch (Exception e) {
-                e.printStackTrace(); // 예외 메시지를 콘솔에 출력
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } else return ResponseEntity.notFound().build();
+        try {
+            userService.sendEmailVerificationCode(email);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e) {
+            e.printStackTrace(); // 예외 메시지를 콘솔에 출력
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // 이메일 인증 확인
     @PostMapping("/verify-email-code")
     public ResponseEntity<?> verifyEmail(@RequestBody Requests.VerifyEmailRequest request) {
-        Optional<User> user = userService.findUserByEmail(request.email);
-        if (user.isPresent()) {
-            boolean isVerified = userService.verifyEmail(user.get(), request.code);
-            if (isVerified) return ResponseEntity.ok().build();
-            else return ResponseEntity.badRequest().build();
-        } else return ResponseEntity.notFound().build();
+        boolean isVerified = userService.verifyEmail(request.email, request.code);
+        if (isVerified) {
+            return ResponseEntity.ok().build();
+        } else {
+            // 코드가 없거나 일치하지 않다면
+            return ResponseEntity.badRequest().build();
+        }
     }
+
     // 이메일 찾기
     @GetMapping("/find-Email")
     public ResponseEntity<String> findEmailByPhoneNumber(@RequestParam String phoneNumber) {

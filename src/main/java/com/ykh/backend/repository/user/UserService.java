@@ -18,8 +18,8 @@ public interface UserService extends UserDetailsService {
     boolean checkPassword(User user, String currentPassword);
     Optional<User> changePassword(User user, String password);
     Optional<User> findUserByEmail(String email);
-    void sendEmailVerificationCode(User user) throws Exception; // Exception 키워드 추가
-    boolean verifyEmail(User user, String code);
+    void sendEmailVerificationCode(String email) throws Exception; // Exception 키워드 추가
+    boolean verifyEmail(String email, String code);
     String findEmailByPhoneNumber(String phoneNumber);
     void createPasswordResetTokenForUser(User user, String token);
     Optional<User> findUserByPasswordResetToken(String token);

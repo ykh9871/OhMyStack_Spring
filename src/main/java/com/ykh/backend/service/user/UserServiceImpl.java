@@ -2,10 +2,12 @@ package com.ykh.backend.service.user;
 
 import com.ykh.backend.dto.user.UserDto;
 import com.ykh.backend.dto.user.UserInfoDto;
+import com.ykh.backend.entity.email.EmailVerificationCode;
 import com.ykh.backend.entity.user.AcademicAbility;
 import com.ykh.backend.entity.user.Authority;
 import com.ykh.backend.entity.user.Department;
 import com.ykh.backend.entity.user.User;
+import com.ykh.backend.repository.email.EmailVerificationCodeRepository;
 import com.ykh.backend.repository.user.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final AcademicAbilityRepository academicAbilityRepository;
     private final DepartmentRepository departmentRepository;
+    private final EmailVerificationCodeRepository emailVerificationCodeRepository;
 
     @Override
     public User getUserFromAuthentication(Authentication authentication) {
@@ -125,26 +128,34 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
     @Override
-    public void sendEmailVerificationCode(User user) throws Exception {
+    public void sendEmailVerificationCode(String email) throws Exception {
         String code = generateVerificationCode();
-        user.setEmailVerificationCode(code);
-        userRepository.save(user);
+
+        // Create or update the email verification code
+        EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.findByEmail(email);
+        if (emailVerificationCode == null) {
+            emailVerificationCode = new EmailVerificationCode();
+            emailVerificationCode.setEmail(email);
+        }
+        emailVerificationCode.setVerificationCode(code);
+        emailVerificationCodeRepository.save(emailVerificationCode);
 
         String subject = "이메일 인증";
         String message = "인증 코드: " + code + " 입니다.";
-        emailService.sendEmail(user.getEmail(), subject, message);
+        emailService.sendEmail(email, subject, message);
     }
 
     @Override
-    public boolean verifyEmail(User user, String code) {
-        if (user.getEmailVerificationCode().equals(code)) {
-            user.setEmailVerified(true);
-            userRepository.save(user);
+    public boolean verifyEmail(String email, String code) {
+        EmailVerificationCode emailVerificationCode = emailVerificationCodeRepository.findByEmail(email);
+        if (emailVerificationCode != null && emailVerificationCode.getVerificationCode().equals(code)) {
+            emailVerificationCodeRepository.deleteByEmail(email);
             return true;
         } else {
             return false;
         }
     }
+
 
     @Override
     public String findEmailByPhoneNumber(String phoneNumber) {
