@@ -10,9 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -21,26 +20,37 @@ public class UserRecruitController {
     private final UserRecruitService userRecruitService;
     private final UserService userService;
 
-    // 사용자가 선택한 채용공고 업데이트
+    // 사용자가 선택한 채용공고 좋아요기능
     @PostMapping("/recruit")
-    public ResponseEntity<Void> addUserRecruits(@RequestBody List<Long> recruitIdsToAdd, Authentication authentication) {
+    public ResponseEntity<Void> toggleUserRecruits(@RequestBody List<Long> recruitIdsToToggle, Authentication authentication) {
         User user = userService.getUserFromAuthentication(authentication);
         List<Long> userRecruits = user.getUserRecruits();
 
-        // Set으로 변경하여 중복 제거
-        Set<Long> recruitIdsToAddSet = new HashSet<>(recruitIdsToAdd);
+        // userRecurits가 null인 경우 빈 ArrayList로 초기화합니다
+        if (userRecruits == null) {
+            userRecruits = new ArrayList<>();
+            user.setUserRecruits(userRecruits); // 그냥 업데이트
+        }
 
-        // 이미 존재하는 ID 제거
-        userRecruits.forEach(recruitIdsToAddSet::remove);
-
-        // 추가
-        userRecruits.addAll(recruitIdsToAddSet);
+        for (Long recruitId : recruitIdsToToggle) {
+            if (userRecruits.contains(recruitId)) {
+                // userRecruits에 recruitId가 이미 포함되어 있으면 제거합니다
+                userRecruits.remove(recruitId);
+                if (userRecruits.isEmpty()) {
+                    user.setUserRecruits(null);
+                }
+            } else {
+                // 그렇지 않으면 목록에 추가합니다
+                userRecruits.add(recruitId);
+            }
+        }
 
         user.setUpdatedAt(LocalDateTime.now());
         userService.updateUser(user);
 
         return ResponseEntity.ok().build();
     }
+
     // 사용자가 선택한 채용공고 조회
     @GetMapping("/recruit")
     public List<RecruitDto> getUserRecruits(Authentication authentication) {
