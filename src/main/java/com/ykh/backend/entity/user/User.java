@@ -42,12 +42,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-    @Column(name = "email_verification_code")
-    private String emailVerificationCode;
-
-    @Column(name = "email_verified")
-    private boolean emailVerified;
-
     @Column(name = "delete_user")
     private boolean deleteUser;
 
