@@ -20,6 +20,9 @@ public class Requests {
         public String email;
         public String code;
     }
+    public static class ValidateTokenRequest{
+        public String token;
+    }
     public static class PasswordResetRequest{
         public String token;
         public String newPassword;

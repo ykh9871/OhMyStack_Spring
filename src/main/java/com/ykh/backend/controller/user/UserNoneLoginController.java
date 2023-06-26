@@ -2,6 +2,7 @@ package com.ykh.backend.controller.user;
 
 import com.ykh.backend.dto.user.UserDto;
 import com.ykh.backend.entity.user.User;
+import com.ykh.backend.repository.user.UserRepository;
 import com.ykh.backend.repository.user.UserService;
 import com.ykh.backend.request.Requests;
 import com.ykh.backend.service.user.UserServiceImpl;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class UserNoneLoginController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
     // 회원가입
     @PostMapping("/signup")
@@ -76,18 +78,14 @@ public class UserNoneLoginController {
 
     // 토큰 검증 요청
     @PostMapping("/validate-token")
-    public ResponseEntity<?> validateToken(@RequestBody String token) {
-        try {
-            userService.findUserByPasswordResetToken(token);
-            // 토큰이 유효하면 OK 상태 코드를 반환합니다.
+    public ResponseEntity<?> validateToken(@RequestBody Requests.ValidateTokenRequest request) {
+        Optional<User> user = userRepository.findByPasswordResetToken(request.token);
+        if (user.isPresent()) {
             return ResponseEntity.ok().build();
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        }else return ResponseEntity.notFound().build();
     }
-
     // 비밀번호 변경 요청
-    @PutMapping("/change-password")
+    @PutMapping("/reset-password")
     public ResponseEntity<?> changePassword(@RequestBody Requests.PasswordResetRequest request) {
         try {
             User user = userService.findUserByPasswordResetToken(request.token)
