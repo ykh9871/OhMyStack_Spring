@@ -5,8 +5,8 @@
 개발 기간은 2023 6/1 ~ 6/27 입니다.
 
 ## 설명
-This project developed a back-end service using Spring Boot and recommends job openings based on the user's technical stack and self-introduction letter.  
-The service aims to reduce the difficulty of users in finding the right company for them.
+이 프로젝트는 스프링 부트를 사용하여 백엔드 서비스를 개발하고 사용자의 기술 스택과 자기소개서를 기반으로 채용 공고를 추천합니다.  
+이 서비스는 사용자가 자신에게 적합한 회사를 찾는 데 어려움을 겪는 것을 줄이는 것을 목표로 합니다.
 
 ## 목차
 1. [프로젝트 동기](#프로젝트-동기)
